@@ -25,7 +25,7 @@ export class Player {
     this._direction = new THREE.Vector3()
     this._velocity = new THREE.Vector3()
     this._groundPos = new THREE.Vector3()
-    this._savedYaw = 0
+    this._savedQuaternion = new THREE.Quaternion()
     this.topDown = false
 
     this._setupKeyListeners()
@@ -50,17 +50,18 @@ export class Player {
 
   toggleView() {
     if (!this.topDown) {
-      // Sauvegarde la position au sol et l'orientation avant de passer en vue du dessus
+      // Sauvegarde la position au sol et l'orientation avant de basculer
       this._groundPos.set(this.camera.position.x, 0, this.camera.position.z)
-      this._savedYaw = this.camera.rotation.y
-      this.topDown = true  // doit être true AVANT unlock pour ne pas déclencher la pause
-      this.controls.unlock()
+      this._savedQuaternion.copy(this.camera.quaternion)
+      this.topDown = true
+      // On ne touche pas au pointer lock — lookAt() écrase la rotation chaque frame
     } else {
-      // Retour en vue FPS : repositionne la caméra au sol avec l'orientation d'avant
       this.topDown = false
+      // Repositionne au sol et restaure l'orientation horizontale d'avant
       this.camera.position.set(this._groundPos.x, 1.7, this._groundPos.z)
-      this.camera.rotation.set(0, this._savedYaw, 0)
-      this.controls.lock()
+      const euler = new THREE.Euler().setFromQuaternion(this._savedQuaternion, 'YXZ')
+      euler.x = 0
+      this.camera.quaternion.setFromEuler(euler)
     }
   }
 

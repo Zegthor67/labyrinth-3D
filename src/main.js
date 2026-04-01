@@ -54,7 +54,7 @@ function endGame() {
 
 // Déclenchement de la pause — ignoré si c'est un changement de vue
 player.controls.addEventListener('unlock', () => {
-  if (state === 'playing' && !player.topDown) pauseGame()
+  if (state === 'playing') pauseGame()
 })
 
 window.addEventListener('keydown', (e) => {
@@ -96,7 +96,7 @@ function animate() {
     if (labyrinth.estArriveSortie(camera.position)) endGame()
   }
 
-  composer.render()
+  if (state !== 'start') composer.render()
 }
 
 animate()
