@@ -124,7 +124,8 @@ labyrinth-3D/
         └── player/
             ├── constants.js     → Vitesse et rayon de collision
             ├── controls.js      → Écoute des touches clavier
-            ├── movement.js      → Déplacement et gestion des collisions
+            ├── movement.js      → Déplacement et gestion des collisions (vue FPS)
+            ├── topdown.js       → Déplacement et caméra en vue du dessus
             └── index.js         → Classe Player (orchestre tout)
 ```
 
@@ -179,7 +180,17 @@ Le brouillard est exponentiel (`FogExp2`) : il s'épaissit progressivement avec 
 
 ### 5. Le joueur — player/
 
-Le dossier `player/` sépare les responsabilités : `controls.js` écoute le clavier, `movement.js` calcule le déplacement et gère les collisions, `index.js` regroupe le tout dans la classe `Player`. Le joueur est représenté par la caméra — avant chaque mouvement, on vérifie si la position d'arrivée est dans un mur et on annule le déplacement si c'est le cas.
+Le dossier `player/` sépare les responsabilités : `controls.js` écoute le clavier, `movement.js` calcule le déplacement et gère les collisions en vue FPS, `index.js` regroupe le tout dans la classe `Player`. Le joueur est représenté par la caméra — avant chaque mouvement, on vérifie si la position d'arrivée est dans un mur et on annule le déplacement si c'est le cas.
+
+#### Vue du dessus — topdown.js
+
+La touche `V` bascule vers un second mode piloté par `topdown.js`. Son fonctionnement :
+
+1. **Déplacement axe Z** (avant / arrière) — on calcule une position candidate, on la soumet à `verifCollision`, et on ne déplace le joueur que si la case est libre.
+2. **Déplacement axe X** (gauche / droite) — même logique, testée séparément pour permettre le glissement le long des murs.
+3. **Caméra** — placée 30 unités au-dessus du joueur et orientée vers le bas (`lookAt`), ce qui crée la vue plongeante.
+
+> Le vecteur `nextPosition` est instancié une seule fois en dehors de la fonction et réutilisé à chaque frame pour éviter des allocations mémoire inutiles.
 
 ### 6. Les états du jeu — main.js
 
